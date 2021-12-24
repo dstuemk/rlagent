@@ -1,0 +1,6 @@
+[submodule "sdl"]
+	path = sdl
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "eigen"]
+	path = eigen
+	url = https://gitlab.com/libeigen/eigen.git
