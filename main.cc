@@ -7,7 +7,7 @@
 #include "src/environment/flappy_simulator.h"
 #include "src/learner/sarsa.h"
 #include "src/policy/epsilon_greedy.h"
-#include "src/approximator/state_aggregation.h"
+#include "src/approximator/tile_coding.h"
 
 #include "utils.h"
 
@@ -39,16 +39,21 @@ int main(int argc, char** argv) {
 
   // Create value function approximator
   const double learning_rate = 1e-3;
+  const int tilings = 4;
+  auto displacement = (Eigen::Matrix<int, 5, 1>()
+    << 1, 3, 5, 7, 11).finished();
   auto state_space_segments = (Eigen::Matrix<int, 5, 1>()
     << 10, 10, 10, 10, 5).finished();
   auto state_space_min = (Eigen::Matrix<float, 5, 1>()
     << 0, 3.75, 3.75, 1, -10).finished();
   auto state_space_max = (Eigen::Matrix<float, 5, 1>()
     << 11, 10.25, 10.25, 13, 10).finished();
-  auto approximator = std::make_shared<StateAggregation>(
+  auto approximator = std::make_shared<TileCoding>(
                 env.getNumberOfActions(),
                 env.getStateDim(),
                 learning_rate,
+                tilings,
+                displacement,
                 state_space_segments,
                 state_space_min,
                 state_space_max);

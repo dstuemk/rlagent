@@ -1,7 +1,6 @@
 #ifndef __TILE_CODING_H_
 #define __TILE_CODING_H_
 
-#include "src/approximator/approximator.h"
 #include "src/approximator/state_aggregation.h"
 
 class TileCoding : public Approximator {
@@ -35,9 +34,9 @@ class TileCoding : public Approximator {
         const Eigen::Ref<const Eigen::VectorXf> &action_kernel = (Eigen::Matrix<float, 1, 1>()<< 1.0).finished(),
         double init_min_value = 0.0, double init_max_value = 0.0);
     
-    void save(std::string filename);
+    void save(std::string filename) override;
 
-    void load(std::string filename);
+    void load(std::string filename) override;
 
     Eigen::VectorXd predict(
       const Eigen::Ref<const Eigen::VectorXd>& state,
@@ -50,16 +49,6 @@ class TileCoding : public Approximator {
   
   private:
     std::vector<StateAggregation> layers;
-
-  protected:
-    double predict_implementation(
-        Eigen::Ref<const Eigen::VectorXd> state,
-        int action) override;
-
-    double update_implementation(
-        const Eigen::Ref<const Eigen::VectorXd>& state,
-        int action,
-        double target) override;
 };
 
 #endif

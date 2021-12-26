@@ -1,6 +1,7 @@
 #include "src/approximator/tile_coding.h"
+#include <fstream>
 
-TileCoding(
+TileCoding::TileCoding(
     int number_of_actions,
     int dimensions_of_statespace,
     double step_size,
@@ -17,7 +18,7 @@ TileCoding(
 
       // How big is each segment
       auto segment_size = size_statespace.array() / segments.cast<float>().array();
-
+      
       // How big is a "fundamental" tile
       auto tile_size = segment_size.array() / float(tilings);
 
@@ -32,7 +33,7 @@ TileCoding(
               number_of_actions,
               dimensions_of_statespace,
               step_size / tilings,
-              layer_segments,
+              layer_segments.cast<int>(),
               layer_min_values,
               layer_max_values,
               action_kernel,
@@ -42,12 +43,41 @@ TileCoding(
       }
 }
 
+void TileCoding::save(std::string filename) {
+    std::ofstream outfile(filename, std::ios_base::binary);
+    if (outfile.is_open()) {
+        for (auto& layer: layers) {
+            auto* data = layer.getValues().data();
+            auto data_size = layer.getValues().size();
+            outfile.write(
+                reinterpret_cast<const char*>(data),
+                static_cast<int64_t>(data_size * sizeof(data[0])));
+        }
+        outfile.close();
+    }
+}
+
+void TileCoding::load(std::string filename) {
+    std::ifstream infile(filename, std::ios_base::binary);
+    if (infile.good()) {
+        for (auto& layer: layers) {
+            auto* data = layer.getValues().data();
+            auto data_size = layer.getValues().size();
+            infile.read(
+                reinterpret_cast<char*>(data),
+                static_cast<int64_t>(data_size * sizeof(data[0])));
+        }
+        infile.close();
+    }
+}
+
 Eigen::VectorXd TileCoding::predict(
       const Eigen::Ref<const Eigen::VectorXd>& state,
       const Eigen::Ref<const Eigen::VectorXi>& actions) {
-    Eigen::VectorXd prediction = Eigen::VectorXd::Zero(dimensions_of_statespace);
+    Eigen::VectorXd prediction = Eigen::VectorXd::Zero(actions.size());
     for(auto& layer: layers) {
-        prediction = prediction + layer.predict(state,actions) / layers.size();
+        Eigen::VectorXd layer_prediction = layer.predict(state,actions) / layers.size();
+        prediction = prediction + layer_prediction;
     }
     return prediction;
 }
@@ -58,20 +88,8 @@ double TileCoding::update(
       double target) {
     double td_error = 0.0;
     for(auto& layer: layers) {
-        td_error = td_error + layer.update(state, action, target) / layers.size();
+        double layer_error = layer.update(state, action, target) / layers.size() 
+        td_error = td_error + layer_error;
     }
     return td_error;
-}
-
-double TileCoding::predict_implementation(
-        Eigen::Ref<const Eigen::VectorXd> state,
-        int action) {
-    throw std::logic_error("Not implemented");
-}
-
-double TileCoding::update_implementation(
-        const Eigen::Ref<const Eigen::VectorXd>& state,
-        int action,
-        double target) {
-    throw std::logic_error("Not implemented");
 }

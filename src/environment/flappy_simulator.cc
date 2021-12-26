@@ -145,7 +145,7 @@ void FlappySimulator::play(std::shared_ptr<Policy> policy, double play_time_sec,
         unsigned char const *keys = SDL_GetKeyboardState(nullptr);
         if (keys[SDL_SCANCODE_LSHIFT]) {
             selected_action = keys[SDL_SCANCODE_SPACE] ? 1:0;
-            std::cout << "Overwrite action: " << selected_action << std::endl;
+            //std::cout << "Overwrite action: " << selected_action << std::endl;
         }
 
         // Get current time
@@ -160,8 +160,8 @@ void FlappySimulator::play(std::shared_ptr<Policy> policy, double play_time_sec,
             if (selected_action < 0) selected_action = policy->apply(getState());
             // Perform step and render
             step(selected_action, obs, episode_over);
-            std::cout << obs << std::endl;
-            std::cout << "Finished: " << episode_over << std::endl;
+            //std::cout << obs << std::endl;
+            //std::cout << "Finished: " << episode_over << std::endl;
             render();
             // Check if episode over
             if (episode_over) reset(obs);
