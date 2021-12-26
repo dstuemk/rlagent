@@ -14,7 +14,7 @@
 void learn_batch(Learner* learner, int batch_size, int episode_length,
   std::vector<double>& msve_batch, std::vector<double>& reward_batch);
 
-void save_statistics(const char* filename, const double* msve_array,
+void save_statistics(std::string filename, const double* msve_array,
   const double* reward_array, int number_of_episodes);
 
 int main(int argc, char** argv) {
@@ -26,6 +26,12 @@ int main(int argc, char** argv) {
   if (execution_mode) {
     mode_learn = std::string(execution_mode) == "learn";
     mode_play = std::string(execution_mode) == "play";
+  }
+
+  const char* working_directory = get_cmd_option(
+    argv, argv+argc, "-wdir");
+  if (!working_directory) {
+    working_directory = "./";
   }
 
   // Initialize environment
@@ -54,7 +60,7 @@ int main(int argc, char** argv) {
 
   if (mode_play) {
     // Load pretrained approximator
-    approximator->load("approximator.dat");
+    approximator->load(std::string(working_directory) + "/approximator.dat");
     
     // Play for 5 minutes
     env.play(policy, 300.0);
@@ -74,7 +80,7 @@ int main(int argc, char** argv) {
     Sarsa learner(discount, policy, approximator, reward, init_env, 20);
 
     // Learning phase
-    const int number_of_episodes = 2e6;
+    const int number_of_episodes = 2e5;
     const int episode_length = 400;
     std::vector<double> msve;
     std::vector<double> rewards;
@@ -106,10 +112,11 @@ int main(int argc, char** argv) {
     }
 
     // Save parameters
-    approximator->save("approximator.dat");
+    approximator->save(std::string(working_directory) + "/approximator.dat");
 
     // Save statistics
-    save_statistics("statistics.csv", msve.data(), rewards.data(), number_of_episodes);      
+    save_statistics(std::string(working_directory) + "/statistics.csv",
+      msve.data(), rewards.data(), number_of_episodes);      
   }
   
   // Fin.
@@ -134,14 +141,14 @@ void learn_batch(Learner* learner, int batch_size, int episode_length,
 }
 
 
-void save_statistics(const char* filename, const double* msve_array,
+void save_statistics(std::string filename, const double* msve_array,
   const double* reward_array, int number_of_episodes) {
     std::ofstream stats;
-    stats.open (filename);
-    // Output in excel CSV format
-    stats << "MSVE;REWARD\n";
+    stats.open(filename);
+    // Output in CSV format
+    stats << "MSVE,REWARD\n";
     for (int i=0; i < number_of_episodes; i++) {
-      stats << msve_array[i] << ";" << reward_array[i] << "\n";
+      stats << msve_array[i] << "," << reward_array[i] << "\n";
     }
     stats.close();
 }

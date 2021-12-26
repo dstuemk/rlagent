@@ -30,6 +30,10 @@ StateAggregation::StateAggregation(
         * (init_max_value - init_min_value) + init_min_value;
 }
 
+Eigen::Ref<Eigen::VectorXf> StateAggregation::getValues() {
+    return values;
+}
+
 void StateAggregation::save(std::string filename) {
     std::ofstream outfile(filename, std::ios_base::binary);
     if (outfile.is_open()) {

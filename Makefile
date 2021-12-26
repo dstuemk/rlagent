@@ -1,42 +1,26 @@
 BUILD=build
-#EXPERIMENTS=experiments
-#DATE=${shell date --iso-8601}
-#TIME=${shell date +%H%M%S}
-#EXPERIMENT_PARENT_DIR=${EXPERIMENTS}/${USER}
-#EXPERIMENT_DIR=${EXPERIMENT_PARENT_DIR}/${DATE}/${TIME}
+RUN=run
+DATE=${shell date --iso-8601}
+TIME=${shell date +%H%M%S}
+RUN_PARENT_DIR=${RUN}/${USER}
+RUN_DIR=${RUN_PARENT_DIR}/${DATE}/${TIME}
 
 all:
-	@echo "Hello Group-3"
+	@echo "No target 'all' available..."
 
 
 ${BUILD}:
 	mkdir ${BUILD}
 
-#doc:
-#	doxygen Doxyfile
-
-compile: ${BUILD} #doc
+compile: ${BUILD}
 	cd ${BUILD} && cmake -DCMAKE_BUILD_TYPE=Release ..
 	$(MAKE) -C ${BUILD} all
 
-#experiment: compile
-#	mkdir -p ${EXPERIMENT_DIR}/data
-#	if [ ! -d "venv" ]; then python3 -m venv venv && venv/bin/pip install -r requirements.txt; fi
-#	git ls-files | tar Tzcf - ${EXPERIMENT_DIR}/code.tgz
-#	cp -r ${BUILD} ${EXPERIMENT_DIR}/${BUILD}
-#	./${EXPERIMENT_DIR}/${BUILD}/group3 -cmd exec -exec train -exec_dir ${EXPERIMENT_DIR}/data
-#	if ! venv/bin/python -c "import matplotlib"; then venv/bin/pip install -r requirements.txt; fi
-#	venv/bin/python visualization.py ${EXPERIMENT_DIR}/data ${DATE}_${TIME} ${EXPERIMENT_PARENT_DIR} > ${EXPERIMENT_PARENT_DIR}/${DATE}_${TIME}.txt
-
-#test: compile
-#	./build/unit_test
-
-#coverage: test
-#	bash coverage.sh
-
-#lint:
-#	bash lint.sh
+run: compile
+	mkdir -p ${RUN_DIR}/data
+	git ls-files | tar Tzcf - ${RUN_DIR}/code.tgz
+	cp -r ${BUILD} ${RUN_DIR}/${BUILD}
+	./${RUN_DIR}/${BUILD}/rlagent -exec learn -wdir ${RUN_DIR}/data
 
 clean:
 	rm -rf ${BUILD}
-#	rm -rf doc

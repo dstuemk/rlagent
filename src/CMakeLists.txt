@@ -5,6 +5,7 @@ set(SOURCE
         # All source files here
         ${CMAKE_CURRENT_SOURCE_DIR}/environment/flappy_simulator.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/approximator/state_aggregation.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/approximator/tile_coding.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/policy/epsilon_greedy.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/learner/sarsa.cc
         
@@ -16,6 +17,7 @@ set(HEADER
         ${CMAKE_CURRENT_SOURCE_DIR}/environment/flappy_simulator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/approximator/approximator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/approximator/state_aggregation.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/approximator/tile_coding.h
         ${CMAKE_CURRENT_SOURCE_DIR}/policy/policy.h
         ${CMAKE_CURRENT_SOURCE_DIR}/policy/epsilon_greedy.h
         ${CMAKE_CURRENT_SOURCE_DIR}/learner/learner.h

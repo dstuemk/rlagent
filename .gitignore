@@ -1,4 +1,5 @@
 .vscode/
 build/
+run/
 *.csv
 *.dat
