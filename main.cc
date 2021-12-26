@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
   auto displacement = (Eigen::Matrix<int, 5, 1>()
     << 1, 3, 5, 7, 11).finished();
   auto state_space_segments = (Eigen::Matrix<int, 5, 1>()
-    << 10, 10, 10, 10, 5).finished();
+    << 20, 20, 20, 20, 10).finished();
   auto state_space_min = (Eigen::Matrix<float, 5, 1>()
     << 0, 3.75, 3.75, 1, -10).finished();
   auto state_space_max = (Eigen::Matrix<float, 5, 1>()

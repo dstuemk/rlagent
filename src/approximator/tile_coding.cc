@@ -88,7 +88,7 @@ double TileCoding::update(
       double target) {
     double td_error = 0.0;
     for(auto& layer: layers) {
-        double layer_error = layer.update(state, action, target) / layers.size() 
+        double layer_error = layer.update(state, action, target) / layers.size();
         td_error = td_error + layer_error;
     }
     return td_error;
