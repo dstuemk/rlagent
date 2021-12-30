@@ -42,4 +42,4 @@ Depending on your CPU, multiple episodes which work with and improve the same po
 
 Two value function approximators are available so far. One is a simple state aggregation which assigns nearby areas of the state space to the same discretized state value. An extension of this approach is implemented with Tile Coding. Here multiple state aggregation approximators are used while each of them has a slight offset (displacement). More details can also be found in the mentioned Book.
 
-[!Alt Text](tile-coding-2d.png)
+![Alt Text](tile-coding-2d.png)
