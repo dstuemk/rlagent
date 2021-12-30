@@ -31,7 +31,7 @@ The environment is called "FlappySimulator". It can be observed through an five 
 
 ## Policy
 
-So far a simple ![equation](https://latex.codecogs.com/svg.image?\epsilon)-greedy is implemented. It selects a greedy action with probability 1-![equation](https://latex.codecogs.com/svg.image?\epsilon) or a random action with probability ![equation](https://latex.codecogs.com/svg.image?\epsilon). During the learning phase it is possible to decrease ![equation](https://latex.codecogs.com/svg.image?\epsilon) after each batch of episodes. By doing so we start with high exploration and shift to high exploitation over the course of learning.
+So far a simple ![equation](https://latex.codecogs.com/svg.image?\epsilon)-greedy policy is implemented. It selects greedily an action with probability 1-![equation](https://latex.codecogs.com/svg.image?\epsilon) or a random action with probability ![equation](https://latex.codecogs.com/svg.image?\epsilon). During the learning phase it is possible to decrease ![equation](https://latex.codecogs.com/svg.image?\epsilon) after each batch of episodes. By doing so we start with high exploration and shift to high exploitation over the course of learning.
 
 ## Learning Algorithm
 
