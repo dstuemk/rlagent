@@ -38,7 +38,7 @@ class FlappySimulator : public Environment {
     static constexpr double pipe_opening  = 5.0;
     static constexpr double pipe_width    = 2.0;
     static constexpr double flappy_radius = 1.0;
-    static constexpr double flappy_accel  = 25.0;
+    static constexpr double flappy_accel  = 100.0;
     static constexpr double flappy_speed  = 2.0;
     static constexpr double flappy_vmax   = 10.0;
     static constexpr double flappy_x      = 4.0;

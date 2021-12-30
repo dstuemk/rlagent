@@ -39,11 +39,11 @@ int main(int argc, char** argv) {
 
   // Create value function approximator
   const double learning_rate = 1e-3;
-  const int tilings = 4;
+  const int tilings = 3;
   auto displacement = (Eigen::Matrix<int, 5, 1>()
     << 1, 3, 5, 7, 11).finished();
   auto state_space_segments = (Eigen::Matrix<int, 5, 1>()
-    << 20, 20, 20, 20, 10).finished();
+    << 6, 6, 6, 4, 6).finished();
   auto state_space_min = (Eigen::Matrix<float, 5, 1>()
     << 0, 3.75, 3.75, 1, -10).finished();
   auto state_space_max = (Eigen::Matrix<float, 5, 1>()
@@ -60,35 +60,36 @@ int main(int argc, char** argv) {
   
   // Create policy
   double epsilon = 0.2;
-  double epsilon_decay = 1.0;
+  double epsilon_decay = 1.0 - 3e-7;
   auto policy = std::make_shared<EpsilonGreedy>(epsilon, approximator);
+
+  // Create learner
+  const int number_of_episodes = 1e7;
+  Learner::reward_function reward = [](Eigen::VectorXd x, int a, Eigen::VectorXd x_next, Environment* env) {
+      auto* flappy_env = (FlappySimulator*)env;
+      return flappy_env->getCollision() ? -100.0 : 1.0;
+  };
+  Learner::environment_function init_env = []() {
+    auto env = std::make_shared<FlappySimulator>();
+    return env;
+  };
+  const double discount = 0.9;
+  Sarsa learner(discount, policy, approximator, reward, init_env, 20);
 
   if (mode_play) {
     // Load pretrained approximator
     approximator->load(std::string(working_directory) + "/approximator.dat");
     
+    // Perform epsilon decay process
+    policy->epsilon = policy->epsilon * std::pow(epsilon_decay, number_of_episodes);
+
     // Play for 5 minutes
     env.play(policy, 300.0);
   }
 
   if (mode_learn) {
-    // Create learner
-    Learner::reward_function reward = [](Eigen::VectorXd x, int a, Eigen::VectorXd x_next, Environment* env) {
-        auto* flappy_env = (FlappySimulator*)env;
-        return flappy_env->getCollision() ? -100.0 : 1.0;
-    };
-    Learner::environment_function init_env = []() {
-      auto env = std::make_shared<FlappySimulator>();
-      return env;
-    };
-    const double discount = 0.9;
-    Sarsa learner(discount, policy, approximator, reward, init_env, 20);
-
     // Learning phase
-    const int number_of_episodes = 2e5;
     const int episode_length = 400;
-    std::vector<double> msve;
-    std::vector<double> rewards;
     learner.verbose = true;
     
     // This could take a while ...
@@ -99,29 +100,22 @@ int main(int argc, char** argv) {
       std::cout << "batch number: " << ++current_batch << std::endl;
       // We learn a batch of episodes with fixed parameters
       int batch_size = std::min(
-        std::ceil(number_of_episodes / double(number_of_batches)), 
+        std::ceil(double(number_of_episodes) / number_of_batches), 
         double(remaining_episodes));
       std::vector<double> msve_batch, reward_batch;
-      learn_batch(&learner, batch_size, episode_length, msve_batch, reward_batch);
+      learn_batch(&learner, batch_size, episode_length, msve_batch, reward_batch);      
+      // Save parameters
+      approximator->save(std::string(working_directory) + "/approximator.dat");
+      // Save statistics
+      save_statistics(std::string(working_directory) + "/statistics.csv",
+        msve_batch.data(), reward_batch.data(), batch_size);
       // Play one example game
       env.play(policy, 10.0);
-      // Store batch results
-      msve.insert(
-        msve.end(), msve_batch.begin(), msve_batch.end());
-      rewards.insert(
-        rewards.end(), reward_batch.begin(), reward_batch.end());
       // Decay process of epsilon
       policy->epsilon = policy->epsilon * std::pow(epsilon_decay, batch_size);
       // Next batch ...
-      remaining_episodes -= batch_size;
-    }
-
-    // Save parameters
-    approximator->save(std::string(working_directory) + "/approximator.dat");
-
-    // Save statistics
-    save_statistics(std::string(working_directory) + "/statistics.csv",
-      msve.data(), rewards.data(), number_of_episodes);      
+      remaining_episodes -= batch_size;  
+    }    
   }
   
   // Fin.
@@ -141,17 +135,20 @@ void learn_batch(Learner* learner, int batch_size, int episode_length,
     std::cout << "batch mean reward: " 
               << std::accumulate(reward_batch.begin(), reward_batch.end(), 0.0) / reward_batch.size() << std::endl
               << "batch msve: "
-              << std::accumulate(msve_batch.begin(), msve_batch.end(), 0.0) / msve_batch.size() << std::endl
-              << std::endl;
+              << std::accumulate(msve_batch.begin(), msve_batch.end(), 0.0) / msve_batch.size() << std::endl;
 }
 
 
 void save_statistics(std::string filename, const double* msve_array,
   const double* reward_array, int number_of_episodes) {
-    std::ofstream stats;
-    stats.open(filename);
+    std::fstream stats;
+    stats.open(filename, std::ios_base::app | std::ios_base::ate);
     // Output in CSV format
-    stats << "MSVE,REWARD\n";
+    if (!stats.tellp()) {
+      std::cout << "Create file: " << filename << std::endl;
+      stats << "MSVE,REWARD\n";
+    }
+    std::cout << "Write into file: " << filename << std::endl;
     for (int i=0; i < number_of_episodes; i++) {
       stats << msve_array[i] << "," << reward_array[i] << "\n";
     }
