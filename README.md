@@ -7,6 +7,8 @@ As you can see in the animation above, the currently implemented environment is 
 
 The theoretical concepts which I built this upon are from Sutton and Barto's Book ["Reinforcement Learning: An Introduction"](http://incompleteideas.net/book/bookdraft2017nov5.pdf).
 
+![Alt Text](reward-msve.png)
+
 ## Setup
 
 ### Prerequisites
