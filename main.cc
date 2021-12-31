@@ -38,12 +38,12 @@ int main(int argc, char** argv) {
   FlappySimulator env(true);
 
   // Create value function approximator
-  const double learning_rate = 1e-3;
-  const int tilings = 3;
+  const double learning_rate = 1e-1;
+  const int tilings = 5;
   auto displacement = (Eigen::Matrix<int, 5, 1>()
     << 1, 3, 5, 7, 11).finished();
   auto state_space_segments = (Eigen::Matrix<int, 5, 1>()
-    << 6, 6, 6, 4, 6).finished();
+    << 10, 10, 10, 10, 10).finished();
   auto state_space_min = (Eigen::Matrix<float, 5, 1>()
     << 0, 3.75, 3.75, 1, -10).finished();
   auto state_space_max = (Eigen::Matrix<float, 5, 1>()
@@ -60,11 +60,11 @@ int main(int argc, char** argv) {
   
   // Create policy
   double epsilon = 0.2;
-  double epsilon_decay = 1.0 - 3e-7;
+  double epsilon_decay = 1.0 - 3e-6;
   auto policy = std::make_shared<EpsilonGreedy>(epsilon, approximator);
 
   // Create learner
-  const int number_of_episodes = 1e7;
+  const int number_of_episodes = 1e6;
   Learner::reward_function reward = [](Eigen::VectorXd x, int a, Eigen::VectorXd x_next, Environment* env) {
       auto* flappy_env = (FlappySimulator*)env;
       return flappy_env->getCollision() ? -100.0 : 1.0;
